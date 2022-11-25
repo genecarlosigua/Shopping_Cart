@@ -1,7 +1,7 @@
-<?php 
+<?php  
 
     session_start();
-
+    
     $arrProducts = array(
         array(
             'name'          => "Fit Blue T-Shirt ",
@@ -70,7 +70,16 @@
        
     );
 
+    if(isset($_POST['btnProcess'])) {
+      
+        unset($_SESSION['cartItems'][$_POST['hdnKey']][$_POST['hdnSize']]);
+
+        $_SESSION['totalQuantity'] -= $_POST['hdnQuantity'];
+        header("location: cart.php");
+    }
 ?>
+        
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,58 +91,70 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="CSS/Styles.css">
 
-    <title>Shopping Cart</title>
+    <title>Remove</title>
 </head>
 <body>
 
-    <form method = "post">
-
-        <div class="container my-5">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h1><i class="fa-solid fa-store"></i>Shopping Cart
-                        <a href="cart.php">
-                            <button type="button" class="btn-primary btn-sm float-right">
-                                <i class="fa-solid fa-cart-shopping"></i>cart
-                                <?php 
-                                    if(isset($_SESSION['totalQuantity']))
-                                        echo '<span class="badge badge-light">' . $_SESSION['totalQuantity'] . '</span>';
-                                    else
-                                        echo '<span class="badge badge-light">0</span>';
-                                ?> 
-                            </button>
-                        </a>
-                    </h1>
+<form method="post">
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col-10">
+                    <h1><i class="fa fa-store"></i> Kickz Shop</h1>
                 </div>
+                <div class="col-2 text-right">
+                    <a href="cart.php" class="btn btn-primary">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                            <?php 
+                            if(isset($_SESSION['totalQuantity']))
+                                echo '<span class="badge badge-light">' . $_SESSION['totalQuantity'] . '</span>';
+                            else
+                                echo '<span class="badge badge-light">0</span>';
+                            ?> 
+                    </a>
+                </div>            
             </div>
 
             <hr>
 
             <div class="row">
-                <?php foreach($arrProducts as $key => $value):?>
-                    <div class="col-2 col-md-3">
-                        <div class="product-grid2">
-                            <div class="card card-container"> 
-                                <div class="product-image2">
-                                    <a href="details.php?k=<?php echo $key; ?>">
-                                        <img class="pic-1" src="img/<?php echo $value['photo1'];?>.jpg">
-                                        <img class="pic-2" src="img/<?php echo $value['photo2'];?>.jpg">
-                                    <a class="add-to-cart" href="details.php?k=<?php echo $key; ?>"><i class="fa-solid fa-cart-plus"></i>Add to cart</a></a>      
-                                </div>
-                                <div class="product-content">
-                                    <h3 class="title"><?php echo $value['name'];?> <span class="badge badge-dark"> <?php echo $value['price'];?></span></h3>                        
-                                </div>
-                            </div>  
-                        </div>          
-                    </div> 
-                <?php endforeach; ?>
-                <?php $_SESSION['arrProducts'] = $arrProducts;
-                ?>
+                <?php if(isset($_GET['k']) && isset($arrProducts[$_GET['k']])): ?>
+                    
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="product-grid2 card">
+                            <div class="product-image2">
+                                <a href="">
+                                    <img class="pic-1" src="img/<?php echo $arrProducts[$_GET['k']]['photo1']; ?>.jpg" alt="">
+                                </a>                            
+                            </div>                        
+                        </div>
+                    </div>                
+                    <div class="col-md-8 col-sm-6 mb-4">                
+                        <h3 class="title">
+                            <?php echo $arrProducts[$_GET['k']]['name']; ?>
+                            <span class="badge badge-dark">₱ <?php echo $arrProducts[$_GET['k']]['price']; ?></span>
+                        </h3>
+                        <p><?php echo $arrProducts[$_GET['k']]['description']; ?></p>  
+
+                        <hr>
+
+                        <input type="hidden" name="hdnKey" value="<?php echo $_GET['k']; ?>">
+                        <input type="hidden" name="hdnSize" value="<?php echo $_GET['s']; ?>">
+                        <input type="hidden" name="hdnQuantity" value="<?php echo $_GET['q']; ?>">
+
+                        <h3 class="title">Size: <?php echo $_GET['s']; ?></h3>                        
+                        <hr>
+                        <h3 class="title">Quantity: <?php echo $_GET['q']; ?></h3>
+                        <br>
+                        <button type="submit" name="btnProcess" class="btn btn-dark btn-lg"><i class="fa fa-trash"></i> Confirm Product Removal</button>
+                        <a href="cart.php" class="btn btn-danger btn-lg"><i class="fa fa-arrow-left"></i> Cancel / Go Back</a>
+                    </div>                                
+                
+                <?php endif; ?>
             </div>
         </div>
     </form>
 
-    
+
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 </body>

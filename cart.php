@@ -1,4 +1,4 @@
-<?php 
+<?php  
 
     session_start();
 
@@ -70,7 +70,34 @@
        
     );
 
+    $_SESSION['totalAmount'] = 0;
+
+    if(isset($_POST['btnUpdate'])) {
+        
+     
+        $cartKeys = $_POST['hdnKey'];
+        $cartSize = $_POST['hdnSize'];
+        $cartQuantities = $_POST['txtQuantity'];
+
+       
+        if(isset($cartKeys) && isset($cartSize) && isset($cartQuantities)) {
+            
+
+            $_SESSION['totalQuantity'] = 0;
+
+            foreach($cartKeys as $index => $key) {
+               
+                $_SESSION['cartItems'][$key][$cartSize[$index]] = $cartQuantities[$index];
+
+                
+                $_SESSION['totalQuantity'] += $cartQuantities[$index];
+            }
+        }
+    }
+
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,58 +109,115 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="CSS/Styles.css">
 
-    <title>Shopping Cart</title>
+    <title>cart</title>
 </head>
 <body>
-
-    <form method = "post">
+    <form method="post">
 
         <div class="container my-5">
             <div class="row">
                 <div class="col-sm-12">
                     <h1><i class="fa-solid fa-store"></i>Shopping Cart
-                        <a href="cart.php">
+                        <a href="Cart.php">
                             <button type="button" class="btn-primary btn-sm float-right">
                                 <i class="fa-solid fa-cart-shopping"></i>cart
                                 <?php 
                                     if(isset($_SESSION['totalQuantity']))
                                         echo '<span class="badge badge-light">' . $_SESSION['totalQuantity'] . '</span>';
                                     else
-                                        echo '<span class="badge badge-light">0</span>';
+                                    echo '<span class="badge badge-light">0</span>';
                                 ?> 
                             </button>
                         </a>
                     </h1>
                 </div>
             </div>
+        </div>
 
-            <hr>
-
+        <div class="container mb-4">
             <div class="row">
-                <?php foreach($arrProducts as $key => $value):?>
-                    <div class="col-2 col-md-3">
-                        <div class="product-grid2">
-                            <div class="card card-container"> 
-                                <div class="product-image2">
-                                    <a href="details.php?k=<?php echo $key; ?>">
-                                        <img class="pic-1" src="img/<?php echo $value['photo1'];?>.jpg">
-                                        <img class="pic-2" src="img/<?php echo $value['photo2'];?>.jpg">
-                                    <a class="add-to-cart" href="details.php?k=<?php echo $key; ?>"><i class="fa-solid fa-cart-plus"></i>Add to cart</a></a>      
-                                </div>
-                                <div class="product-content">
-                                    <h3 class="title"><?php echo $value['name'];?> <span class="badge badge-dark"> <?php echo $value['price'];?></span></h3>                        
-                                </div>
-                            </div>  
-                        </div>          
-                    </div> 
-                <?php endforeach; ?>
-                <?php $_SESSION['arrProducts'] = $arrProducts;
-                ?>
+                <div class="col-12">
+                    <table class="table table-striped">
+                        <thead>
+                                <tr>
+                                <th scope="col-1"> </th>
+                                <th scope="col-3">Product</th>
+                                <th scope="col-1">Size</th>
+                                <th scope="col-">Quantity</th>
+                                <th scope="col-2">Price</th>
+                                <th scope="col-2">Total</th>
+                                <th scope="col-1"> </th>
+                                <th> </th>
+                                </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <?php if(isset($_SESSION['cartItems'])): ?>
+                                <?php foreach($_SESSION['cartItems'] as $key => $value): ?>
+                                    <?php foreach($value as $size => $quantity): ?>
+   
+                                        <?php $_SESSION['totalAmount'] += $arrProducts[$key]['price'] * $quantity; ?>                                        
+                                            <tr>                                        
+                                                <td><img class="pic-2" src=" img/<?php echo $arrProducts[$key]['photo1'];  ?>.jpg" class="img img-thumbnail" style="height: 50px;"></td>
+                                                <td><?php echo $arrProducts[$key]['name']; ?></td>
+                                                <td><?php echo $size; ?></td>
+
+                                                <td>  
+                                                    <input type="hidden" name="hdnKey[]" value="<?php echo $key; ?>">
+                                                    <input type="hidden" name="hdnSize[]" value="<?php echo $size; ?>">
+                                                    <input type="number" name="txtQuantity[]" value="<?php echo $quantity; ?>" class="form-control text-center" min="1" max="100" required style="width: 150px;">
+                                                </td>
+
+                                                <td>₱ <?php echo number_format($arrProducts[$key]['price'], 2); ?></td>
+                                                <td>₱ <?php echo number_format($arrProducts[$key]['price'] * $quantity, 2); ?></td>
+                                                <td><a href="Remove.php?<?php echo 'k=' . $key . '&s=' . $size . '&q=' . $quantity; ?>" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a></td>
+                                            </tr>
+
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+
+                                    <tr>
+                                        <td colspan="2"> </td>
+                                        <td><b>Total</b></td>
+                                        <td><?php echo $_SESSION['totalQuantity']; ?></td>
+                                        <td>----</td>
+                                        <td><b>₱ <?php echo number_format($_SESSION['totalAmount'], 2); ?><b></td>
+                                        <td>----</td>
+                                    </tr>
+
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="7">Cart is still Empty</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>                
+                </div>            
             </div>
+
+            <?php if(isset($_SESSION['cartItems'])): ?>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <a href="index.php" class="btn btn-danger btn-lg btn-block"><i class="fa fa-shopping-bag"></i> Continue Shopping</a>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <button type="submit" name="btnUpdate" class="btn btn-success btn-lg btn-block"><i class="fa fa-edit"></i> Update</button>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <a href="clear.php" class="btn btn-primary btn-lg btn-block"><i class="fas fa-sign-out-alt"></i> Check Out</a>
+                            </div>
+                        </div>
+                    </div>
+            <?php else:?>
+                <div class="col-sm-12 col-md-4">
+                    <a href="index.php" class="btn btn-danger btn-lg btn-block"><i class="fa fa-shopping-bag"></i> Continue Shopping</a>
+                </div>
+            <?php endif; ?>    
         </div>
     </form>
 
-    
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 </body>
