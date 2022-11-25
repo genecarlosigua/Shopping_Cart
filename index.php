@@ -91,7 +91,7 @@
         <div class="container my-5">
             <div class="row">
                 <div class="col-sm-12">
-                    <h1><i class="fa-solid fa-store"></i>Shopping Cart
+                    <h1><i class="fa-solid fa-store"></i> Augis Store
                         <a href="cart.php">
                             <button type="button" class="btn-primary btn-sm float-right">
                                 <i class="fa-solid fa-cart-shopping"></i>cart
